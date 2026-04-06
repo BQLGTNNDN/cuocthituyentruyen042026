@@ -14,7 +14,7 @@
             background: radial-gradient(circle at center, #fff7ed 0%, #ffedd5 30%, #ea580c 70%, #991b1b 100%);
             color: white;
             font-family: 'Roboto', sans-serif;
-            touch-action: none; /* Ngăn chặn scroll mặc định trên mobile để điều khiển 3D */
+            touch-action: none;
         }
         
         header {
@@ -22,32 +22,30 @@
             top: 0;
             left: 0;
             width: 100%;
-            background: rgba(153, 27, 27, 0.9);
+            background: rgba(153, 27, 27, 0.95);
             backdrop-filter: blur(10px);
             border-bottom: 2px solid #facc15;
             z-index: 50;
             box-shadow: 0 4px 20px rgba(0,0,0,0.5);
-            padding: 10px 15px;
+            padding: 8px 10px;
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 4px;
+            gap: 2px;
         }
 
         .sub-header-left {
             position: absolute;
-            top: clamp(100px, 15vh, 120px); 
+            top: clamp(90px, 12vh, 110px); 
             left: 10px;
-            font-size: clamp(0.7rem, 2vw, 0.85rem);
+            font-size: clamp(0.65rem, 1.8vw, 0.8rem);
             color: rgba(255, 255, 255, 0.9);
-            font-weight: 400;
             z-index: 45;
             pointer-events: none;
-            text-transform: none; 
-            background: rgba(0, 0, 0, 0.4);
-            padding: 4px 8px;
+            background: rgba(0, 0, 0, 0.5);
+            padding: 3px 6px;
             border-radius: 4px;
-            max-width: 80%;
+            max-width: 85%;
         }
 
         .propaganda-text {
@@ -55,33 +53,69 @@
             left: clamp(10px, 5vw, 30px);
             top: 50%;
             transform: translateY(-50%);
-            width: clamp(200px, 40vw, 320px);
+            width: clamp(180px, 35vw, 320px);
             z-index: 40;
             pointer-events: none;
             text-transform: uppercase;
             font-weight: 900;
             line-height: 1.1;
             text-shadow: 2px 2px 0px #7f1d1d, 4px 4px 10px rgba(0,0,0,0.5);
-            border-left: clamp(4px, 1vw, 8px) solid #facc15;
-            padding-left: 15px;
+            border-left: clamp(3px, 0.8vw, 8px) solid #facc15;
+            padding-left: 10px;
             background: linear-gradient(90deg, rgba(153, 27, 27, 0.3) 0%, transparent 100%);
         }
         .propaganda-text h2 {
-            font-size: clamp(1.2rem, 4vw, 2.2rem);
+            font-size: clamp(1rem, 3.5vw, 2.2rem);
             color: #ffffff;
             margin: 0;
         }
         .propaganda-text span {
             color: #facc15;
             display: block;
-            font-size: clamp(1.5rem, 5vw, 2.8rem);
-            margin-bottom: 5px;
+            font-size: clamp(1.2rem, 4.5vw, 2.8rem);
+            margin-bottom: 2px;
         }
 
         #canvas-container {
             width: 100vw;
             height: 100vh;
             cursor: grab;
+        }
+
+        .legend {
+            position: absolute;
+            top: 140px; 
+            right: 15px;
+            background: rgba(0, 0, 0, 0.6);
+            padding: 8px;
+            border-radius: 6px;
+            font-size: 0.7rem;
+            pointer-events: none;
+            border: 1px solid rgba(255,255,255,0.1);
+            z-index: 35;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        @media (max-width: 768px) {
+            .legend {
+                top: auto;
+                bottom: 65px;
+                right: 10px;
+                left: 10px;
+                flex-direction: row;
+                justify-content: space-around;
+                font-size: 0.6rem;
+                padding: 4px;
+                background: rgba(0, 0, 0, 0.8);
+            }
+            .info-panel {
+                right: 10px;
+                left: 10px;
+                bottom: 100px;
+                width: auto;
+            }
         }
 
         .info-panel {
@@ -94,41 +128,13 @@
             backdrop-filter: blur(20px);
             border: 1px solid rgba(234, 179, 8, 0.4);
             border-radius: 15px;
-            padding: 15px;
+            padding: 12px;
             box-shadow: 0 10px 40px rgba(0, 0, 0, 0.8);
             display: none;
             z-index: 60;
             pointer-events: auto;
-            transition: opacity 0.3s ease;
-        }
-        @media (max-width: 768px) {
-            .info-panel {
-                right: 10px;
-                left: 10px;
-                bottom: 70px;
-                width: auto;
-            }
-            .legend {
-                top: auto;
-                bottom: 230px;
-                right: 10px;
-                font-size: 0.65rem;
-            }
         }
 
-        .legend {
-            position: absolute;
-            top: 160px; 
-            right: 15px;
-            background: rgba(0, 0, 0, 0.7);
-            padding: 10px;
-            border-radius: 8px;
-            font-size: 0.75rem;
-            pointer-events: none;
-            border: 1px solid rgba(255,255,255,0.1);
-            z-index: 35;
-        }
-        
         .marquee-container {
             position: absolute;
             bottom: 0;
@@ -136,15 +142,15 @@
             width: 100%;
             background: linear-gradient(90deg, rgba(69, 10, 10, 0.9) 0%, rgba(185, 28, 28, 0.9) 50%, rgba(69, 10, 10, 0.9) 100%);
             border-top: 2px solid #facc15;
-            padding: 10px 0;
+            padding: 8px 0;
             overflow: hidden;
             white-space: nowrap;
             z-index: 30;
         }
         .marquee-content {
             display: inline-block;
-            animation: marquee-forward 20s linear infinite;
-            font-size: clamp(1rem, 3vw, 1.5rem);
+            animation: marquee-forward 25s linear infinite;
+            font-size: clamp(0.9rem, 2.5vw, 1.5rem);
             font-weight: 900;
             text-transform: uppercase;
         }
@@ -153,12 +159,12 @@
             100% { transform: translateX(100vw); }
         }
         .marquee-item {
-            margin-right: 50px;
+            margin-right: 40px;
             display: inline-flex;
             align-items: center;
             color: #ffffff;
         }
-        .status-icon { margin: 0 10px; font-size: 1.2em; }
+        .status-icon { margin: 0 8px; font-size: 1.1em; }
         .word-red { color: #f87171; }
         .word-yellow { color: #facc15; }
     </style>
@@ -166,10 +172,10 @@
 <body>
 
     <header>
-        <h1 class="text-[0.75rem] md:text-lg font-black uppercase tracking-tight text-yellow-500 leading-tight text-center px-2">
+        <h1 class="text-[0.65rem] md:text-lg font-black uppercase tracking-tight text-yellow-500 leading-tight text-center px-2">
             Chỉ thị số 05-CT/TU ngày 10 tháng 11 năm 2025 của Ban Thường vụ Thành ủy Đà Nẵng
         </h1>
-        <p class="text-slate-100 text-[0.6rem] md:text-sm font-semibold max-w-4xl text-center leading-tight uppercase opacity-90 px-4">
+        <p class="text-slate-100 text-[0.55rem] md:text-sm font-semibold max-w-4xl text-center leading-tight uppercase opacity-90 px-4">
             Về tiếp tục đẩy mạnh cải cách hành chính, tăng cường kỷ luật, kỷ cương, khắc phục tình trạng né tránh, đùn đẩy, không làm đúng, đầy đủ chức trách, nhiệm vụ, quyền hạn trong thực thi công vụ
         </p>
     </header>
@@ -183,8 +189,8 @@
     </div>
 
     <div class="legend">
-        <div class="flex items-center mb-1"><div class="w-2 h-2 bg-red-950 mr-2 rounded-sm border border-yellow-500"></div> Thủ trưởng</div>
-        <div class="flex items-center mb-1"><div class="w-2 h-2 bg-slate-600 mr-2 rounded-sm border border-white"></div> Trưởng phòng</div>
+        <div class="flex items-center"><div class="w-2 h-2 bg-red-950 mr-2 rounded-sm border border-yellow-500"></div> Thủ trưởng</div>
+        <div class="flex items-center"><div class="w-2 h-2 bg-slate-600 mr-2 rounded-sm border border-white"></div> Trưởng phòng</div>
         <div class="flex items-center"><div class="w-2 h-2 bg-blue-500 mr-2 rounded-sm border border-white"></div> Chuyên viên</div>
     </div>
 
@@ -192,10 +198,10 @@
 
     <div id="infoPanel" class="info-panel">
         <div class="flex justify-between items-start mb-2">
-            <span id="nodeIndex" class="bg-yellow-500 text-black text-[10px] font-bold px-2 py-0.5 rounded">BIỂU HIỆN 01</span>
+            <span id="nodeIndex" class="bg-yellow-500 text-black text-[9px] font-bold px-2 py-0.5 rounded">BIỂU HIỆN 01</span>
             <button onclick="document.getElementById('infoPanel').style.display='none'" class="text-white opacity-50 hover:opacity-100 text-lg">×</button>
         </div>
-        <p id="nodeDesc" class="text-yellow-50 text-xs md:text-sm leading-relaxed font-medium text-justify"></p>
+        <p id="nodeDesc" class="text-yellow-50 text-[11px] md:text-sm leading-relaxed font-medium text-justify"></p>
     </div>
 
     <div class="marquee-container">
@@ -231,12 +237,10 @@
         let particles = [];
         let raycaster = new THREE.Raycaster();
         let mouse = new THREE.Vector2();
-        
         let targetRotation = { x: 0.5, y: 0.5 }; 
         let currentRotation = { x: 0.5, y: 0.5 };
-        
         let isDragging = false, previousPosition = { x: 0, y: 0 };
-        let targetZoom = window.innerWidth < 768 ? 70 : 55;
+        let targetZoom = window.innerWidth < 768 ? 75 : 55;
         let currentZoom = targetZoom;
         let personnelNodes = [];
         const BOUNDARY = 32;
@@ -268,7 +272,47 @@
             return new THREE.CanvasTexture(canvas);
         }
 
-        function createExplosion(position, color = 0xffff00) {
+        function createPerson(shirtColor, scale = 1.0) {
+            const group = new THREE.Group();
+            
+            // Người (Body & Head)
+            const body = new THREE.Mesh(new THREE.BoxGeometry(0.55*scale, 0.9*scale, 0.4*scale), new THREE.MeshPhongMaterial({ color: shirtColor }));
+            body.position.y = 0.45*scale; group.add(body);
+            const head = new THREE.Mesh(new THREE.BoxGeometry(0.45*scale, 0.45*scale, 0.45*scale), new THREE.MeshPhongMaterial({ color: 0xffdbac }));
+            head.position.y = 1.15*scale; group.add(head);
+
+            // Bàn làm việc
+            const deskGroup = new THREE.Group();
+            const tableTop = new THREE.Mesh(new THREE.BoxGeometry(1.8 * scale, 0.08 * scale, 1.2 * scale), new THREE.MeshPhongMaterial({ color: 0x5C4033 }));
+            tableTop.position.z = 0.8 * scale; 
+            deskGroup.add(tableTop);
+
+            // LAPTOP
+            const laptopBase = new THREE.Mesh(new THREE.BoxGeometry(0.7 * scale, 0.04 * scale, 0.5 * scale), new THREE.MeshPhongMaterial({ color: 0xc0c0c0 }));
+            laptopBase.position.set(0, 0.07 * scale, 0.8 * scale);
+            deskGroup.add(laptopBase);
+            const laptopScreen = new THREE.Mesh(new THREE.BoxGeometry(0.7 * scale, 0.45 * scale, 0.04 * scale), new THREE.MeshPhongMaterial({ color: 0x333333 }));
+            laptopScreen.position.set(0, 0.25 * scale, 1.05 * scale); 
+            laptopScreen.rotation.x = 0.2; 
+            deskGroup.add(laptopScreen);
+
+            // TÀI LIỆU
+            const doc = new THREE.Mesh(new THREE.PlaneGeometry(0.4 * scale, 0.5 * scale), new THREE.MeshBasicMaterial({ color: 0xffffff, side: THREE.DoubleSide }));
+            doc.position.set(0.6 * scale, 0.06 * scale, 0.7 * scale);
+            doc.rotation.x = -Math.PI / 2;
+            doc.rotation.z = -0.15; 
+            deskGroup.add(doc);
+
+            deskGroup.position.y = 0.45 * scale;
+            group.add(deskGroup);
+
+            // Tăng vùng va chạm để dễ tạo tia lửa khi bóng đi qua khu vực bàn
+            group.userData = { radius: 2.5 * scale, originalScale: scale };
+            personnelNodes.push(group);
+            return group;
+        }
+
+        function createSpark(position, color = 0xffff00) {
             const particleCount = window.innerWidth < 768 ? 10 : 20;
             const geometry = new THREE.BufferGeometry();
             const positions = new Float32Array(particleCount * 3);
@@ -277,28 +321,14 @@
                 positions[i * 3] = position.x;
                 positions[i * 3 + 1] = position.y;
                 positions[i * 3 + 2] = position.z;
-                velocities.push(new THREE.Vector3((Math.random() - 0.5) * 0.4, (Math.random() - 0.5) * 0.4, (Math.random() - 0.5) * 0.4));
+                // Vận tốc tia lửa nhanh và ngẫu nhiên hơn
+                velocities.push(new THREE.Vector3((Math.random() - 0.5) * 0.6, (Math.random() - 0.5) * 0.6, (Math.random() - 0.5) * 0.6));
             }
             geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
-            const material = new THREE.PointsMaterial({ color: color, size: 0.3, transparent: true, blending: THREE.AdditiveBlending });
+            const material = new THREE.PointsMaterial({ color: color, size: 0.35, transparent: true, blending: THREE.AdditiveBlending });
             const ps = new THREE.Points(geometry, material);
             scene.add(ps);
-            particles.push({ system: ps, velocities: velocities, life: 1.0, decay: 0.03 });
-        }
-
-        function createPerson(shirtColor, scale = 1.0) {
-            const group = new THREE.Group();
-            const body = new THREE.Mesh(new THREE.BoxGeometry(0.55*scale, 0.9*scale, 0.4*scale), new THREE.MeshPhongMaterial({ color: shirtColor }));
-            body.position.y = 0.45*scale; group.add(body);
-            const head = new THREE.Mesh(new THREE.BoxGeometry(0.45*scale, 0.45*scale, 0.45*scale), new THREE.MeshPhongMaterial({ color: 0xffdbac }));
-            head.position.y = 1.15*scale; group.add(head);
-            const desk = new THREE.Group();
-            const tableTop = new THREE.Mesh(new THREE.BoxGeometry(1.7 * scale, 0.05 * scale, 1.2 * scale), new THREE.MeshPhongMaterial({ color: 0x5C4033 }));
-            tableTop.position.z = 0.8 * scale; desk.add(tableTop);
-            desk.position.y = 0.45 * scale; group.add(desk);
-            group.userData = { radius: 2.3 * scale, originalScale: scale };
-            personnelNodes.push(group);
-            return group;
+            particles.push({ system: ps, velocities: velocities, life: 1.0, decay: 0.05 });
         }
 
         function init() {
@@ -315,9 +345,9 @@
 
             const isMobile = window.innerWidth < 768;
             const configs = [
-                { count: 6, radius: 10, height: -4, label: "CHUYÊN VIÊN", color: 0x2196f3, scale: 0.9, speed: 0.008 },
-                { count: 4, radius: 18, height: 0, label: "TRƯỞNG PHÒNG", color: 0x607d8b, scale: 1.4, speed: -0.005 },
-                { count: isMobile ? 1 : 2, radius: 26, height: 4, label: "THỦ TRƯỞNG", color: 0x450a0a, scale: 2.2, speed: 0.003 }
+                { count: isMobile ? 4 : 6, radius: 10, height: -4, label: "CHUYÊN VIÊN", color: 0x2196f3, scale: 0.9, speed: 0.008 },
+                { count: isMobile ? 3 : 4, radius: 18, height: 0, label: "TRƯỞNG PHÒNG", color: 0x607d8b, scale: 1.4, speed: -0.005 },
+                { count: 2, radius: 26, height: 4, label: "THỦ TRƯỞNG", color: 0x450a0a, scale: 2.2, speed: 0.003 }
             ];
 
             configs.forEach(cfg => {
@@ -325,7 +355,7 @@
                 layer.userData = { rotSpeed: cfg.speed };
                 const ring = new THREE.Mesh(
                     new THREE.CylinderGeometry(cfg.radius+0.1, cfg.radius+0.1, 1.8, 32, 1, true),
-                    new THREE.MeshBasicMaterial({ map: createCurvedTextTexture(cfg.label), transparent: true, side: THREE.DoubleSide, opacity: 0.3 })
+                    new THREE.MeshBasicMaterial({ map: createCurvedTextTexture(cfg.label), transparent: true, side: THREE.DoubleSide, opacity: 0.2 })
                 );
                 layer.add(ring);
                 for(let i=0; i<cfg.count; i++) {
@@ -341,14 +371,18 @@
             const sun = new THREE.DirectionalLight(0xffffff, 1.2); sun.position.set(30, 60, 40); scene.add(sun);
 
             content.forEach((text, i) => {
-                const ball = new THREE.Mesh(new THREE.SphereGeometry(1.6, 16, 16), new THREE.MeshPhongMaterial({ map: createBallTexture(i+1), shininess: 80 }));
+                const ball = new THREE.Mesh(new THREE.SphereGeometry(1.6, 24, 24), new THREE.MeshPhongMaterial({ map: createBallTexture(i+1), shininess: 80 }));
                 ball.position.set((Math.random()-0.5)*40, (Math.random()-0.5)*40, (Math.random()-0.5)*40);
-                const s = 0.1 + Math.random()*0.1;
-                ball.userData = { desc: text, index: i+1, velocity: new THREE.Vector3((Math.random()-0.5)*s, (Math.random()-0.5)*s, (Math.random()-0.5)*s) };
+                // Vận tốc di chuyển ngẫu nhiên mạnh hơn để liên tục di chuyển
+                const s = 0.15 + Math.random()*0.2;
+                ball.userData = { 
+                    desc: text, 
+                    index: i+1, 
+                    velocity: new THREE.Vector3((Math.random()-0.5)*s, (Math.random()-0.5)*s, (Math.random()-0.5)*s) 
+                };
                 globe.add(ball); points.push(ball);
             });
 
-            // Gắn sự kiện (Mouse & Touch)
             const handleDown = (x, y) => { isDragging = true; previousPosition = { x, y }; };
             const handleMove = (x, y) => {
                 if(isDragging) {
@@ -364,18 +398,16 @@
             window.addEventListener('mousedown', e => handleDown(e.clientX, e.clientY));
             window.addEventListener('mousemove', e => handleMove(e.clientX, e.clientY));
             window.addEventListener('mouseup', () => isDragging = false);
-
             window.addEventListener('touchstart', e => handleDown(e.touches[0].clientX, e.touches[0].clientY));
             window.addEventListener('touchmove', e => handleMove(e.touches[0].clientX, e.touches[0].clientY));
             window.addEventListener('touchend', () => isDragging = false);
-
-            window.addEventListener('wheel', e => { targetZoom = Math.max(20, Math.min(200, targetZoom + e.deltaY * 0.05)); });
+            window.addEventListener('wheel', e => { targetZoom = Math.max(25, Math.min(220, targetZoom + e.deltaY * 0.06)); });
             
             window.addEventListener('resize', () => {
                 camera.aspect = window.innerWidth / window.innerHeight;
                 camera.updateProjectionMatrix();
                 renderer.setSize(window.innerWidth, window.innerHeight);
-                targetZoom = window.innerWidth < 768 ? 70 : 55;
+                targetZoom = window.innerWidth < 768 ? 75 : 55;
             });
         }
 
@@ -414,17 +446,41 @@
             }
 
             points.forEach(ball => {
+                // Di chuyển ngẫu nhiên liên tục
                 ball.position.add(ball.userData.velocity);
-                if(ball.position.length() > BOUNDARY) ball.userData.velocity.reflect(ball.position.clone().normalize());
+                
+                // Va chạm với ranh giới không gian (để bóng không bay ra ngoài quá xa)
+                if(ball.position.length() > BOUNDARY) {
+                    ball.userData.velocity.reflect(ball.position.clone().normalize());
+                }
+                
+                // Xoay bóng hiển thị số rõ nét về phía camera
                 ball.quaternion.copy(camera.quaternion);
-                const bPos = ball.getWorldPosition(new THREE.Vector3());
+                
+                // Xử lý va chạm vật lý với bàn làm việc để tạo tia lửa
+                const ballWorldPos = new THREE.Vector3();
+                ball.getWorldPosition(ballWorldPos);
+
                 personnelNodes.forEach(node => {
-                    const nPos = node.getWorldPosition(new THREE.Vector3());
-                    if(bPos.distanceTo(nPos) < node.userData.radius) {
-                        createExplosion(bPos, 0xfacc15);
-                        ball.userData.velocity.copy(new THREE.Vector3().subVectors(bPos, nPos).normalize()).multiplyScalar(0.2);
+                    const nodeWorldPos = new THREE.Vector3();
+                    node.getWorldPosition(nodeWorldPos);
+                    
+                    const distance = ballWorldPos.distanceTo(nodeWorldPos);
+                    if(distance < node.userData.radius) {
+                        // TẠO TIA LỬA KHI VA CHẠM VÀO BÀN
+                        createSpark(ballWorldPos, 0xffaa00);
+                        
+                        // Đổi hướng quả bóng (phản xạ)
+                        const reflectionNormal = new THREE.Vector3().subVectors(ballWorldPos, nodeWorldPos).normalize();
+                        ball.userData.velocity.reflect(reflectionNormal).multiplyScalar(1.05);
+                        
+                        // Hiệu ứng co dãn nhẹ khi bàn bị bóng va chạm
                         node.scale.setScalar(node.userData.originalScale * 1.5);
+                        
+                        // Giới hạn tốc độ bóng tránh bay quá nhanh
+                        if(ball.userData.velocity.length() > 0.6) ball.userData.velocity.setLength(0.5);
                     } else {
+                        // Trả về kích thước gốc
                         node.scale.lerp(new THREE.Vector3(node.userData.originalScale, node.userData.originalScale, node.userData.originalScale), 0.1);
                     }
                 });
