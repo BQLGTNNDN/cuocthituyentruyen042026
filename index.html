@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3D Sphere: Hệ thống Trách nhiệm Phân tầng</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <!-- Nhúng font Roboto -->
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap" rel="stylesheet">
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            /* NỀN TRUNG TÂM CAM TRẮNG NHẠT */
+            background: radial-gradient(circle at center, #fff7ed 0%, #ffedd5 30%, #ea580c 70%, #991b1b 100%);
+            color: white;
+            font-family: 'Roboto', sans-serif;
+        }
+        
+        /* HEADER TỔNG HỢP */
+        header {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            background: rgba(153, 27, 27, 0.9);
+            backdrop-filter: blur(10px);
+            border-bottom: 2px solid #facc15;
+            z-index: 50;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+            padding: 15px 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+        }
+
+        /* CHỮ NHỎ IN THƯỜNG DƯỚI HEADER BÊN TRÁI */
+        .sub-header-left {
+            position: absolute;
+            top: 115px; 
+            left: 20px;
+            font-size: 0.85rem;
+            color: rgba(255, 255, 255, 0.9);
+            font-weight: 400;
+            z-index: 45;
+            pointer-events: none;
+            text-transform: none; 
+            background: rgba(0, 0, 0, 0.2);
+            padding: 4px 10px;
+            border-radius: 4px;
+        }
+
+        /* KHỐI CHỮ TUYÊN TRUYỀN BÊN TRÁI */
+        .propaganda-text {
+            position: absolute;
+            left: 30px;
+            top: 55%;
+            transform: translateY(-50%);
+            width: 320px;
+            z-index: 40;
+            pointer-events: none;
+            text-transform: uppercase;
+            font-family: 'Roboto', sans-serif;
+            font-weight: 900;
+            line-height: 1.1;
+            text-shadow: 3px 3px 0px #7f1d1d, 6px 6px 15px rgba(0,0,0,0.5);
+            border-left: 8px solid #facc15;
+            padding-left: 20px;
+            background: linear-gradient(90deg, rgba(153, 27, 27, 0.3) 0%, transparent 100%);
+        }
+        .propaganda-text h2 {
+            font-size: 2.2rem;
+            color: #ffffff;
+            margin: 0;
+        }
+        .propaganda-text span {
+            color: #facc15;
+            display: block;
+            font-size: 2.8rem;
+            margin-bottom: 5px;
+        }
+
+        #canvas-container {
+            width: 100vw;
+            height: 100vh;
+            cursor: grab;
+        }
+        #canvas-container:active {
+            cursor: grabbing;
+        }
+
+        .info-panel {
+            position: absolute;
+            bottom: 100px; 
+            right: 30px;
+            width: 420px;
+            background: rgba(15, 23, 42, 0.95);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(234, 179, 8, 0.4);
+            border-radius: 20px;
+            padding: 20px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.8);
+            display: none;
+            z-index: 20;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+        .info-panel.active {
+            display: block;
+        }
+        .legend {
+            position: absolute;
+            top: 160px; 
+            right: 20px;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 15px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            pointer-events: none;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        
+        .marquee-container {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background: linear-gradient(90deg, rgba(69, 10, 10, 0.9) 0%, rgba(185, 28, 28, 0.9) 50%, rgba(69, 10, 10, 0.9) 100%);
+            border-top: 3px solid #facc15;
+            padding: 15px 0;
+            overflow: hidden;
+            white-space: nowrap;
+            z-index: 30;
+            display: flex;
+            align-items: center;
+        }
+        .marquee-content {
+            display: inline-block;
+            animation: marquee-forward 25s linear infinite;
+            font-size: 1.5rem;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 0.15em;
+        }
+        @keyframes marquee-forward {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100vw); }
+        }
+        .marquee-item {
+            margin-right: 100px;
+            display: inline-flex;
+            align-items: center;
+            color: #ffffff;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+        }
+        .status-icon {
+            margin: 0 15px;
+            font-size: 1.8rem;
+            filter: drop-shadow(0 0 5px #facc15);
+        }
+        .word-red { color: #f87171; }
+        .word-yellow { color: #facc15; }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1 class="text-base md:text-xl font-black uppercase tracking-tight text-yellow-500 leading-tight text-center">
+            Chỉ thị số 05-CT/TU ngày 10 tháng 11 năm 2025 của Ban Thường vụ Thành ủy Đà Nẵng
+        </h1>
+        <p class="text-slate-100 text-xs md:text-sm font-semibold max-w-5xl text-center leading-relaxed not-italic opacity-100 uppercase">
+            Về tiếp tục đẩy mạnh cải cách hành chính, tăng cường kỷ luật, kỷ cương, khắc phục tình trạng né tránh, đùn đẩy, không làm đúng, đầy đủ chức trách, nhiệm vụ, quyền hạn trong thực thi công vụ
+        </p>
+    </header>
+
+    <!-- Chữ nhỏ in thường dưới header bên trái -->
+    <div class="sub-header-left">
+        Ban Quản lý dự án đầu tư xây dựng các công trình giao thông và nông nghiệp Đà Nẵng
+    </div>
+
+    <!-- Khối chữ tuyên truyền bên trái -->
+    <div class="propaganda-text">
+        <h2><span>10 BIỂU HIỆN</span> TIÊU CỰC, TRÌ TRỆ, NÉ TRÁNH, ĐÙN ĐẨY, KHÔNG LÀM ĐÚNG, ĐẦY ĐỦ CHỨC TRÁCH, NHIỆM VỤ, QUYỀN HẠN TRONG THỰC THI CÔNG VỤ</h2>
+    </div>
+
+    <div class="legend">
+        <div class="flex items-center mb-1"><div class="w-3 h-3 bg-red-950 mr-2 rounded-sm border border-yellow-500"></div> Thủ trưởng, Trưởng ngành</div>
+        <div class="flex items-center mb-1"><div class="w-3 h-3 bg-slate-600 mr-2 rounded-sm border border-white"></div> Trưởng, phó phòng</div>
+        <div class="flex items-center mb-2"><div class="w-3 h-3 bg-blue-500 mr-2 rounded-sm border border-white"></div> Chuyên viên</div>
+    </div>
+
+    <div id="canvas-container"></div>
+
+    <div id="infoPanel" class="info-panel">
+        <div class="flex items-center mb-2">
+            <span id="nodeIndex" class="bg-yellow-500 text-black text-[10px] font-bold px-2 py-0.5 rounded mr-2">BIỂU HIỆN 01</span>
+        </div>
+        <p id="nodeDesc" class="text-yellow-50 text-sm leading-relaxed font-medium text-justify"></p>
+    </div>
+
+    <div class="marquee-container">
+        <div class="marquee-content">
+            <span class="marquee-item">
+                <span class="status-icon">✊</span> NHẬN DIỆN 
+                <span class="status-icon">🚀</span> <span class="word-yellow">ĐẤU TRANH</span>
+                <span class="status-icon">⚡</span> <span class="word-red">ĐẨY LÙI</span>
+            </span>
+            <span class="marquee-item">
+                <span class="status-icon">✊</span> NHẬN DIỆN 
+                <span class="status-icon">🚀</span> <span class="word-yellow">ĐẤU TRANH</span>
+                <span class="status-icon">⚡</span> <span class="word-red">ĐẨY LÙI</span>
+            </span>
+            <span class="marquee-item">
+                <span class="status-icon">✊</span> NHẬN DIỆN 
+                <span class="status-icon">🚀</span> <span class="word-yellow">ĐẤU TRANH</span>
+                <span class="status-icon">⚡</span> <span class="word-red">ĐẨY LÙI</span>
+            </span>
+        </div>
+    </div>
+
+    <script>
+        const content = [
+            "(1) Không tuân thủ nghiêm quy chế làm việc, né tránh hoặc đùn đẩy, không giải quyết hoặc giải quyết không đầy đủ, không đúng thẩm quyền các vụ việc tồn tại kéo dài, phức tạp; thiếu chủ động xử lý các vấn đề mới phát sinh có vướng mắc về pháp lý hoặc chưa có quy định phù hợp.",
+            "(2) Thiếu tinh thần chủ động trong công tác lãnh đạo, điều hành, không đề xuất giải pháp hoặc không tổ chức triển khai các nội dung thuộc thẩm quyền, không tham mưu cho cấp có thẩm quyền các biện pháp xử lý kịp thời đối với công việc phức tạp, khó khăn.",
+            "(3) Tham mưu hình thức, vòng vo, né tránh trách nhiệm, không đưa ra chính kiến rõ ràng, không xác định cụ thể người chịu trách nhiệm, tiến độ và kết quả cần đạt trong từng nhiệm vụ được giao.",
+            "(4) Tìm cách thoái thác nhiệm vụ bằng việc viện dẫn các lý do, căn cứ để đẩy việc lên cấp trên hoặc chuyển giao cho cơ quan, cá nhân khác, trong khi đó là công việc thuộc phạm vi trách nhiệm giải quyết của mình.",
+            "(5) Lựa chọn cách hiểu, cách áp dụng pháp luật có lợi cho bản thân hoặc đơn vị, đẩy trách nhiệm cho cơ quan khác, hoặc lệ thuộc hoàn toàn vào ý kiến tư vấn nhằm tránh việc ra quyết định.",
+            "(6) Không phát huy đầy đủ thẩm quyền được giao, chuyển xin ý kiến cấp trên đối với những vấn đề thuộc trách nhiệm của mình; thờ ơ, vô cảm trước các phản ánh, kiến nghị, bức xúc chính đáng của người dân, tổ chức và doanh nghiệp.",
+            "(7) Thiếu trách nhiệm trong công tác phối hợp và trả lời công việc, không phản hồi, trả lời chậm trễ, chung chung, không rõ ràng hoặc không đi vào trọng tâm nội dung cần giải quyết.",
+            "(8) Người đứng đầu né tránh vai trò lãnh đạo, quản lý, giao cho cấp phó xử lý hoặc trả lời thay; không quyết định các vấn đề thuộc thẩm quyền mà để người khác quyết định, ký thay, dẫn tới chậm trễ, ách tắc trong điều hành.",
+            "(9) Quy trình xử lý công việc thiếu quyết đoán, rườm rà, hình thức, một nội dung nhưng họp bàn nhiều lần, xin ý kiến nhiều nơi, yêu cầu báo cáo lặp đi lặp lại mà không đưa ra kết luận cuối cùng; nội dung chỉ đạo mơ hồ, không cụ thể, thiếu quan điểm rõ ràng, dẫn tới việc đùn đẩy trách nhiệm hoặc chờ sự chỉ đạo của cấp trên.",
+            "(10) Buông lỏng vai trò giám sát, kiểm tra, đôn đốc thực hiện nhiệm vụ, không theo dõi tiến độ, không xử lý các điểm nghẽn, vướng mắc trong triển khai, để tồn tại kéo dài, ảnh hưởng trực tiếp đến hiệu quả công việc và niềm tin của Nhân dân."
+        ];
+
+        let scene, camera, renderer, globe, officeGroup, points = [];
+        let particles = [];
+        let raycaster = new THREE.Raycaster();
+        let mouse = new THREE.Vector2();
+        
+        let targetRotation = { x: 0.5, y: 0.5 }; 
+        let currentRotation = { x: 0.5, y: 0.5 };
+        
+        let isDragging = false, previousMousePosition = { x: 0, y: 0 };
+        let targetZoom = 55, currentZoom = 55;
+        let personnelNodes = [];
+        const BOUNDARY = 32;
+
+        init();
+        animate();
+
+        function createCurvedTextTexture(text) {
+            const canvas = document.createElement('canvas');
+            canvas.width = 2048; canvas.height = 256;
+            const ctx = canvas.getContext('2d');
+            ctx.fillStyle = '#ffffff'; ctx.font = 'bold 100px Roboto';
+            ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+            ctx.fillText(text.toUpperCase(), 512, 128);
+            ctx.fillText(text.toUpperCase(), 1536, 128);
+            const texture = new THREE.CanvasTexture(canvas);
+            texture.wrapS = THREE.RepeatWrapping;
+            return texture;
+        }
+
+        function createBallTexture(number) {
+            const canvas = document.createElement('canvas');
+            canvas.width = 512; canvas.height = 512;
+            const ctx = canvas.getContext('2d');
+            ctx.fillStyle = '#facc15'; ctx.fillRect(0, 0, 512, 512);
+            ctx.fillStyle = '#000000'; ctx.font = 'bold 300px Roboto'; 
+            ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+            ctx.fillText(number, 256, 256);
+            return new THREE.CanvasTexture(canvas);
+        }
+
+        function createExplosion(position, color = 0xffff00) {
+            const particleCount = 20;
+            const geometry = new THREE.BufferGeometry();
+            const positions = new Float32Array(particleCount * 3);
+            const velocities = [];
+
+            for (let i = 0; i < particleCount; i++) {
+                positions[i * 3] = position.x;
+                positions[i * 3 + 1] = position.y;
+                positions[i * 3 + 2] = position.z;
+                
+                velocities.push(new THREE.Vector3(
+                    (Math.random() - 0.5) * 0.5,
+                    (Math.random() - 0.5) * 0.5,
+                    (Math.random() - 0.5) * 0.5
+                ));
+            }
+
+            geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+            const material = new THREE.PointsMaterial({
+                color: color,
+                size: 0.4,
+                transparent: true,
+                blending: THREE.AdditiveBlending
+            });
+
+            const particleSystem = new THREE.Points(geometry, material);
+            scene.add(particleSystem);
+            
+            particles.push({
+                system: particleSystem,
+                velocities: velocities,
+                life: 1.0, 
+                decay: 0.02 
+            });
+        }
+
+        function createDesk(scale) {
+            const deskGroup = new THREE.Group();
+            const tableTop = new THREE.Mesh(new THREE.BoxGeometry(1.7 * scale, 0.05 * scale, 1.2 * scale), new THREE.MeshPhongMaterial({ color: 0x5C4033 }));
+            tableTop.position.z = 0.8 * scale; 
+            deskGroup.add(tableTop);
+
+            const monitor = new THREE.Mesh(new THREE.BoxGeometry(0.75 * scale, 0.5 * scale, 0.05 * scale), new THREE.MeshPhongMaterial({ color: 0x111111 }));
+            monitor.position.set(0, 0.3 * scale, 1.2 * scale); 
+            deskGroup.add(monitor);
+            
+            const kbd = new THREE.Mesh(new THREE.BoxGeometry(0.65 * scale, 0.02 * scale, 0.22 * scale), new THREE.MeshPhongMaterial({ color: 0x222222 }));
+            kbd.position.set(0, 0.04 * scale, 0.8 * scale); 
+            deskGroup.add(kbd);
+
+            return deskGroup;
+        }
+
+        function createPerson(shirtColor, scale = 1.0) {
+            const group = new THREE.Group();
+            const body = new THREE.Mesh(new THREE.BoxGeometry(0.55*scale, 0.9*scale, 0.4*scale), new THREE.MeshPhongMaterial({ color: shirtColor }));
+            body.position.y = 0.45*scale; group.add(body);
+            const head = new THREE.Mesh(new THREE.BoxGeometry(0.45*scale, 0.45*scale, 0.45*scale), new THREE.MeshPhongMaterial({ color: 0xffdbac }));
+            head.position.y = 1.15*scale; group.add(head);
+            const desk = createDesk(scale); desk.position.y = 0.45 * scale; group.add(desk);
+            
+            group.userData = { radius: 2.3 * scale, originalScale: scale };
+            personnelNodes.push(group);
+            return group;
+        }
+
+        function init() {
+            const container = document.getElementById('canvas-container');
+            scene = new THREE.Scene();
+            camera = new THREE.PerspectiveCamera(55, window.innerWidth/window.innerHeight, 0.1, 3000);
+            renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            container.appendChild(renderer.domElement);
+
+            globe = new THREE.Group(); scene.add(globe);
+            officeGroup = new THREE.Group(); scene.add(officeGroup);
+
+            const configs = [
+                { count: 6, radius: 10, height: -4, label: "CHUYÊN VIÊN", color: 0x2196f3, scale: 0.9, speed: 0.008 },
+                { count: 4, radius: 18, height: 0, label: "TRƯỞNG, PHÓ PHÒNG", color: 0x607d8b, scale: 1.4, speed: -0.005 },
+                { count: 2, radius: 26, height: 4, label: "THỦ TRƯỞNG, TRƯỞNG NGÀNH", color: 0x450a0a, scale: 2.2, speed: 0.003 }
+            ];
+
+            configs.forEach(cfg => {
+                const layer = new THREE.Group(); layer.position.y = cfg.height;
+                layer.userData = { rotSpeed: cfg.speed };
+                const ring = new THREE.Mesh(
+                    new THREE.CylinderGeometry(cfg.radius+0.1, cfg.radius+0.1, 1.8, 64, 1, true),
+                    new THREE.MeshBasicMaterial({ map: createCurvedTextTexture(cfg.label), transparent: true, side: THREE.DoubleSide, opacity: 0.4 })
+                );
+                layer.add(ring);
+                for(let i=0; i<cfg.count; i++) {
+                    const angle = (i/cfg.count)*Math.PI*2;
+                    const p = createPerson(cfg.color, cfg.scale);
+                    p.position.set(Math.cos(angle)*cfg.radius, 0, Math.sin(angle)*cfg.radius);
+                    p.lookAt(0,0,0); layer.add(p);
+                }
+                officeGroup.add(layer);
+            });
+
+            scene.add(new THREE.AmbientLight(0xffffff, 0.8));
+            const sun = new THREE.DirectionalLight(0xffffff, 1.2); sun.position.set(30, 60, 40); scene.add(sun);
+
+            content.forEach((text, i) => {
+                const ball = new THREE.Mesh(new THREE.SphereGeometry(1.6, 32, 32), new THREE.MeshPhongMaterial({ map: createBallTexture(i+1), shininess: 120 }));
+                ball.position.set((Math.random()-0.5)*45, (Math.random()-0.5)*45, (Math.random()-0.5)*45);
+                const s = 0.12 + Math.random()*0.1;
+                ball.userData = { desc: text, index: i+1, velocity: new THREE.Vector3((Math.random()-0.5)*s, (Math.random()-0.5)*s, (Math.random()-0.5)*s) };
+                globe.add(ball); points.push(ball);
+            });
+
+            window.addEventListener('mousedown', () => isDragging = true);
+            window.addEventListener('mouseup', () => isDragging = false);
+            window.addEventListener('mousemove', (e) => {
+                if(isDragging) {
+                    targetRotation.y += (e.clientX - previousMousePosition.x) * 0.005;
+                    targetRotation.x += (e.clientY - previousMousePosition.y) * 0.005;
+                }
+                previousMousePosition = { x: e.clientX, y: e.clientY };
+                mouse.x = (e.clientX / window.innerWidth) * 2 - 1;
+                mouse.y = -(e.clientY / window.innerHeight) * 2 + 1;
+                checkHover();
+            });
+            window.addEventListener('wheel', (e) => {
+                targetZoom = Math.max(15, Math.min(180, targetZoom + e.deltaY * 0.05));
+            });
+            window.addEventListener('resize', () => {
+                camera.aspect = window.innerWidth / window.innerHeight;
+                camera.updateProjectionMatrix();
+                renderer.setSize(window.innerWidth, window.innerHeight);
+            });
+        }
+
+        function checkHover() {
+            raycaster.setFromCamera(mouse, camera);
+            const hits = raycaster.intersectObjects(points);
+            const p = document.getElementById('infoPanel');
+            if(hits.length > 0) {
+                const data = hits[0].object.userData;
+                document.getElementById('nodeIndex').innerText = `BIỂU HIỆN ${data.index < 10 ? '0'+data.index : data.index}`;
+                document.getElementById('nodeDesc').innerText = data.desc;
+                p.classList.add('active');
+            } else {
+                p.classList.remove('active');
+            }
+        }
+
+        function animate() {
+            requestAnimationFrame(animate);
+            currentZoom += (targetZoom - currentZoom) * 0.1;
+            camera.position.z = currentZoom; camera.lookAt(0,0,0);
+            currentRotation.x += (targetRotation.x - currentRotation.x) * 0.05;
+            currentRotation.y += (targetRotation.y - currentRotation.y) * 0.05;
+            
+            globe.rotation.set(currentRotation.x, currentRotation.y, 0);
+            officeGroup.rotation.set(currentRotation.x, currentRotation.y, 0);
+            
+            officeGroup.children.forEach(l => l.rotation.y += l.userData.rotSpeed);
+
+            for (let i = particles.length - 1; i >= 0; i--) {
+                const p = particles[i];
+                p.life -= p.decay;
+                
+                if (p.life <= 0) {
+                    scene.remove(p.system);
+                    p.system.geometry.dispose();
+                    p.system.material.dispose();
+                    particles.splice(i, 1);
+                    continue;
+                }
+
+                const positions = p.system.geometry.attributes.position.array;
+                for (let j = 0; j < p.velocities.length; j++) {
+                    positions[j * 3] += p.velocities[j].x;
+                    positions[j * 3 + 1] += p.velocities[j].y;
+                    positions[j * 3 + 2] += p.velocities[j].z;
+                }
+                p.system.geometry.attributes.position.needsUpdate = true;
+                p.system.material.opacity = p.life;
+            }
+
+            points.forEach(ball => {
+                ball.position.add(ball.userData.velocity);
+                if(ball.position.length() > BOUNDARY) {
+                    ball.userData.velocity.reflect(ball.position.clone().normalize()).multiplyScalar(1.0);
+                }
+                
+                ball.quaternion.copy(camera.quaternion);
+                
+                const bPos = ball.getWorldPosition(new THREE.Vector3());
+                personnelNodes.forEach(node => {
+                    const nPos = node.getWorldPosition(new THREE.Vector3());
+                    if(bPos.distanceTo(nPos) < node.userData.radius) {
+                        createExplosion(bPos, 0xfacc15);
+                        ball.userData.velocity.copy(new THREE.Vector3().subVectors(bPos, nPos).normalize()).multiplyScalar(0.2);
+                        node.scale.setScalar(node.userData.originalScale * 1.5);
+                    } else {
+                        node.scale.lerp(new THREE.Vector3(node.userData.originalScale, node.userData.originalScale, node.userData.originalScale), 0.1);
+                    }
+                });
+            });
+            renderer.render(scene, camera);
+        }
+    </script>
+</body>
+</html>
