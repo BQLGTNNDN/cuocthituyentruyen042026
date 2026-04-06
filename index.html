@@ -2,23 +2,21 @@
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>3D Sphere: Hệ thống Trách nhiệm Phân tầng</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Cuộc thi tuyên truyền các Chỉ thị, Nghị quyết của Trung ương, Thành ủy và của Đảng ủy UBND thành phố</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-    <!-- Nhúng font Roboto -->
     <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap" rel="stylesheet">
     <style>
         body {
             margin: 0;
             overflow: hidden;
-            /* NỀN TRUNG TÂM CAM TRẮNG NHẠT */
             background: radial-gradient(circle at center, #fff7ed 0%, #ffedd5 30%, #ea580c 70%, #991b1b 100%);
             color: white;
             font-family: 'Roboto', sans-serif;
+            touch-action: none; /* Ngăn chặn scroll mặc định trên mobile để điều khiển 3D */
         }
         
-        /* HEADER TỔNG HỢP */
         header {
             position: absolute;
             top: 0;
@@ -29,56 +27,54 @@
             border-bottom: 2px solid #facc15;
             z-index: 50;
             box-shadow: 0 4px 20px rgba(0,0,0,0.5);
-            padding: 15px 20px;
+            padding: 10px 15px;
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 6px;
+            gap: 4px;
         }
 
-        /* CHỮ NHỎ IN THƯỜNG DƯỚI HEADER BÊN TRÁI */
         .sub-header-left {
             position: absolute;
-            top: 115px; 
-            left: 20px;
-            font-size: 0.85rem;
+            top: clamp(100px, 15vh, 120px); 
+            left: 10px;
+            font-size: clamp(0.7rem, 2vw, 0.85rem);
             color: rgba(255, 255, 255, 0.9);
             font-weight: 400;
             z-index: 45;
             pointer-events: none;
             text-transform: none; 
-            background: rgba(0, 0, 0, 0.2);
-            padding: 4px 10px;
+            background: rgba(0, 0, 0, 0.4);
+            padding: 4px 8px;
             border-radius: 4px;
+            max-width: 80%;
         }
 
-        /* KHỐI CHỮ TUYÊN TRUYỀN BÊN TRÁI */
         .propaganda-text {
             position: absolute;
-            left: 30px;
-            top: 55%;
+            left: clamp(10px, 5vw, 30px);
+            top: 50%;
             transform: translateY(-50%);
-            width: 320px;
+            width: clamp(200px, 40vw, 320px);
             z-index: 40;
             pointer-events: none;
             text-transform: uppercase;
-            font-family: 'Roboto', sans-serif;
             font-weight: 900;
             line-height: 1.1;
-            text-shadow: 3px 3px 0px #7f1d1d, 6px 6px 15px rgba(0,0,0,0.5);
-            border-left: 8px solid #facc15;
-            padding-left: 20px;
+            text-shadow: 2px 2px 0px #7f1d1d, 4px 4px 10px rgba(0,0,0,0.5);
+            border-left: clamp(4px, 1vw, 8px) solid #facc15;
+            padding-left: 15px;
             background: linear-gradient(90deg, rgba(153, 27, 27, 0.3) 0%, transparent 100%);
         }
         .propaganda-text h2 {
-            font-size: 2.2rem;
+            font-size: clamp(1.2rem, 4vw, 2.2rem);
             color: #ffffff;
             margin: 0;
         }
         .propaganda-text span {
             color: #facc15;
             display: block;
-            font-size: 2.8rem;
+            font-size: clamp(1.5rem, 5vw, 2.8rem);
             margin-bottom: 5px;
         }
 
@@ -87,39 +83,50 @@
             height: 100vh;
             cursor: grab;
         }
-        #canvas-container:active {
-            cursor: grabbing;
-        }
 
         .info-panel {
             position: absolute;
-            bottom: 100px; 
-            right: 30px;
-            width: 420px;
+            bottom: 80px; 
+            right: 20px;
+            width: calc(100% - 40px);
+            max-width: 420px;
             background: rgba(15, 23, 42, 0.95);
             backdrop-filter: blur(20px);
             border: 1px solid rgba(234, 179, 8, 0.4);
-            border-radius: 20px;
-            padding: 20px;
+            border-radius: 15px;
+            padding: 15px;
             box-shadow: 0 10px 40px rgba(0, 0, 0, 0.8);
             display: none;
-            z-index: 20;
-            pointer-events: none;
+            z-index: 60;
+            pointer-events: auto;
             transition: opacity 0.3s ease;
         }
-        .info-panel.active {
-            display: block;
+        @media (max-width: 768px) {
+            .info-panel {
+                right: 10px;
+                left: 10px;
+                bottom: 70px;
+                width: auto;
+            }
+            .legend {
+                top: auto;
+                bottom: 230px;
+                right: 10px;
+                font-size: 0.65rem;
+            }
         }
+
         .legend {
             position: absolute;
             top: 160px; 
-            right: 20px;
+            right: 15px;
             background: rgba(0, 0, 0, 0.7);
-            padding: 15px;
-            border-radius: 12px;
+            padding: 10px;
+            border-radius: 8px;
             font-size: 0.75rem;
             pointer-events: none;
             border: 1px solid rgba(255,255,255,0.1);
+            z-index: 35;
         }
         
         .marquee-container {
@@ -128,38 +135,30 @@
             left: 0;
             width: 100%;
             background: linear-gradient(90deg, rgba(69, 10, 10, 0.9) 0%, rgba(185, 28, 28, 0.9) 50%, rgba(69, 10, 10, 0.9) 100%);
-            border-top: 3px solid #facc15;
-            padding: 15px 0;
+            border-top: 2px solid #facc15;
+            padding: 10px 0;
             overflow: hidden;
             white-space: nowrap;
             z-index: 30;
-            display: flex;
-            align-items: center;
         }
         .marquee-content {
             display: inline-block;
-            animation: marquee-forward 25s linear infinite;
-            font-size: 1.5rem;
+            animation: marquee-forward 20s linear infinite;
+            font-size: clamp(1rem, 3vw, 1.5rem);
             font-weight: 900;
             text-transform: uppercase;
-            letter-spacing: 0.15em;
         }
         @keyframes marquee-forward {
             0% { transform: translateX(-100%); }
             100% { transform: translateX(100vw); }
         }
         .marquee-item {
-            margin-right: 100px;
+            margin-right: 50px;
             display: inline-flex;
             align-items: center;
             color: #ffffff;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
         }
-        .status-icon {
-            margin: 0 15px;
-            font-size: 1.8rem;
-            filter: drop-shadow(0 0 5px #facc15);
-        }
+        .status-icon { margin: 0 10px; font-size: 1.2em; }
         .word-red { color: #f87171; }
         .word-yellow { color: #facc15; }
     </style>
@@ -167,46 +166,40 @@
 <body>
 
     <header>
-        <h1 class="text-base md:text-xl font-black uppercase tracking-tight text-yellow-500 leading-tight text-center">
+        <h1 class="text-[0.75rem] md:text-lg font-black uppercase tracking-tight text-yellow-500 leading-tight text-center px-2">
             Chỉ thị số 05-CT/TU ngày 10 tháng 11 năm 2025 của Ban Thường vụ Thành ủy Đà Nẵng
         </h1>
-        <p class="text-slate-100 text-xs md:text-sm font-semibold max-w-5xl text-center leading-relaxed not-italic opacity-100 uppercase">
+        <p class="text-slate-100 text-[0.6rem] md:text-sm font-semibold max-w-4xl text-center leading-tight uppercase opacity-90 px-4">
             Về tiếp tục đẩy mạnh cải cách hành chính, tăng cường kỷ luật, kỷ cương, khắc phục tình trạng né tránh, đùn đẩy, không làm đúng, đầy đủ chức trách, nhiệm vụ, quyền hạn trong thực thi công vụ
         </p>
     </header>
 
-    <!-- Chữ nhỏ in thường dưới header bên trái -->
     <div class="sub-header-left">
-        Ban Quản lý dự án đầu tư xây dựng các công trình giao thông và nông nghiệp Đà Nẵng
+        Ban Quản lý dự án ĐTXD các công trình giao thông và nông nghiệp Đà Nẵng
     </div>
 
-    <!-- Khối chữ tuyên truyền bên trái -->
     <div class="propaganda-text">
-        <h2><span>10 BIỂU HIỆN</span> TIÊU CỰC, TRÌ TRỆ, NÉ TRÁNH, ĐÙN ĐẨY, KHÔNG LÀM ĐÚNG, ĐẦY ĐỦ CHỨC TRÁCH, NHIỆM VỤ, QUYỀN HẠN TRONG THỰC THI CÔNG VỤ</h2>
+        <h2><span>10 BIỂU HIỆN</span> TIÊU CỰC, TRÌ TRỆ, NÉ TRÁNH, ĐÙN ĐẨY TRONG THỰC THI CÔNG VỤ</h2>
     </div>
 
     <div class="legend">
-        <div class="flex items-center mb-1"><div class="w-3 h-3 bg-red-950 mr-2 rounded-sm border border-yellow-500"></div> Thủ trưởng, Trưởng ngành</div>
-        <div class="flex items-center mb-1"><div class="w-3 h-3 bg-slate-600 mr-2 rounded-sm border border-white"></div> Trưởng, phó phòng</div>
-        <div class="flex items-center mb-2"><div class="w-3 h-3 bg-blue-500 mr-2 rounded-sm border border-white"></div> Chuyên viên</div>
+        <div class="flex items-center mb-1"><div class="w-2 h-2 bg-red-950 mr-2 rounded-sm border border-yellow-500"></div> Thủ trưởng</div>
+        <div class="flex items-center mb-1"><div class="w-2 h-2 bg-slate-600 mr-2 rounded-sm border border-white"></div> Trưởng phòng</div>
+        <div class="flex items-center"><div class="w-2 h-2 bg-blue-500 mr-2 rounded-sm border border-white"></div> Chuyên viên</div>
     </div>
 
     <div id="canvas-container"></div>
 
     <div id="infoPanel" class="info-panel">
-        <div class="flex items-center mb-2">
-            <span id="nodeIndex" class="bg-yellow-500 text-black text-[10px] font-bold px-2 py-0.5 rounded mr-2">BIỂU HIỆN 01</span>
+        <div class="flex justify-between items-start mb-2">
+            <span id="nodeIndex" class="bg-yellow-500 text-black text-[10px] font-bold px-2 py-0.5 rounded">BIỂU HIỆN 01</span>
+            <button onclick="document.getElementById('infoPanel').style.display='none'" class="text-white opacity-50 hover:opacity-100 text-lg">×</button>
         </div>
-        <p id="nodeDesc" class="text-yellow-50 text-sm leading-relaxed font-medium text-justify"></p>
+        <p id="nodeDesc" class="text-yellow-50 text-xs md:text-sm leading-relaxed font-medium text-justify"></p>
     </div>
 
     <div class="marquee-container">
         <div class="marquee-content">
-            <span class="marquee-item">
-                <span class="status-icon">✊</span> NHẬN DIỆN 
-                <span class="status-icon">🚀</span> <span class="word-yellow">ĐẤU TRANH</span>
-                <span class="status-icon">⚡</span> <span class="word-red">ĐẨY LÙI</span>
-            </span>
             <span class="marquee-item">
                 <span class="status-icon">✊</span> NHẬN DIỆN 
                 <span class="status-icon">🚀</span> <span class="word-yellow">ĐẤU TRANH</span>
@@ -242,8 +235,9 @@
         let targetRotation = { x: 0.5, y: 0.5 }; 
         let currentRotation = { x: 0.5, y: 0.5 };
         
-        let isDragging = false, previousMousePosition = { x: 0, y: 0 };
-        let targetZoom = 55, currentZoom = 55;
+        let isDragging = false, previousPosition = { x: 0, y: 0 };
+        let targetZoom = window.innerWidth < 768 ? 70 : 55;
+        let currentZoom = targetZoom;
         let personnelNodes = [];
         const BOUNDARY = 32;
 
@@ -275,57 +269,21 @@
         }
 
         function createExplosion(position, color = 0xffff00) {
-            const particleCount = 20;
+            const particleCount = window.innerWidth < 768 ? 10 : 20;
             const geometry = new THREE.BufferGeometry();
             const positions = new Float32Array(particleCount * 3);
             const velocities = [];
-
             for (let i = 0; i < particleCount; i++) {
                 positions[i * 3] = position.x;
                 positions[i * 3 + 1] = position.y;
                 positions[i * 3 + 2] = position.z;
-                
-                velocities.push(new THREE.Vector3(
-                    (Math.random() - 0.5) * 0.5,
-                    (Math.random() - 0.5) * 0.5,
-                    (Math.random() - 0.5) * 0.5
-                ));
+                velocities.push(new THREE.Vector3((Math.random() - 0.5) * 0.4, (Math.random() - 0.5) * 0.4, (Math.random() - 0.5) * 0.4));
             }
-
             geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
-            const material = new THREE.PointsMaterial({
-                color: color,
-                size: 0.4,
-                transparent: true,
-                blending: THREE.AdditiveBlending
-            });
-
-            const particleSystem = new THREE.Points(geometry, material);
-            scene.add(particleSystem);
-            
-            particles.push({
-                system: particleSystem,
-                velocities: velocities,
-                life: 1.0, 
-                decay: 0.02 
-            });
-        }
-
-        function createDesk(scale) {
-            const deskGroup = new THREE.Group();
-            const tableTop = new THREE.Mesh(new THREE.BoxGeometry(1.7 * scale, 0.05 * scale, 1.2 * scale), new THREE.MeshPhongMaterial({ color: 0x5C4033 }));
-            tableTop.position.z = 0.8 * scale; 
-            deskGroup.add(tableTop);
-
-            const monitor = new THREE.Mesh(new THREE.BoxGeometry(0.75 * scale, 0.5 * scale, 0.05 * scale), new THREE.MeshPhongMaterial({ color: 0x111111 }));
-            monitor.position.set(0, 0.3 * scale, 1.2 * scale); 
-            deskGroup.add(monitor);
-            
-            const kbd = new THREE.Mesh(new THREE.BoxGeometry(0.65 * scale, 0.02 * scale, 0.22 * scale), new THREE.MeshPhongMaterial({ color: 0x222222 }));
-            kbd.position.set(0, 0.04 * scale, 0.8 * scale); 
-            deskGroup.add(kbd);
-
-            return deskGroup;
+            const material = new THREE.PointsMaterial({ color: color, size: 0.3, transparent: true, blending: THREE.AdditiveBlending });
+            const ps = new THREE.Points(geometry, material);
+            scene.add(ps);
+            particles.push({ system: ps, velocities: velocities, life: 1.0, decay: 0.03 });
         }
 
         function createPerson(shirtColor, scale = 1.0) {
@@ -334,8 +292,10 @@
             body.position.y = 0.45*scale; group.add(body);
             const head = new THREE.Mesh(new THREE.BoxGeometry(0.45*scale, 0.45*scale, 0.45*scale), new THREE.MeshPhongMaterial({ color: 0xffdbac }));
             head.position.y = 1.15*scale; group.add(head);
-            const desk = createDesk(scale); desk.position.y = 0.45 * scale; group.add(desk);
-            
+            const desk = new THREE.Group();
+            const tableTop = new THREE.Mesh(new THREE.BoxGeometry(1.7 * scale, 0.05 * scale, 1.2 * scale), new THREE.MeshPhongMaterial({ color: 0x5C4033 }));
+            tableTop.position.z = 0.8 * scale; desk.add(tableTop);
+            desk.position.y = 0.45 * scale; group.add(desk);
             group.userData = { radius: 2.3 * scale, originalScale: scale };
             personnelNodes.push(group);
             return group;
@@ -347,23 +307,25 @@
             camera = new THREE.PerspectiveCamera(55, window.innerWidth/window.innerHeight, 0.1, 3000);
             renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
             renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
             container.appendChild(renderer.domElement);
 
             globe = new THREE.Group(); scene.add(globe);
             officeGroup = new THREE.Group(); scene.add(officeGroup);
 
+            const isMobile = window.innerWidth < 768;
             const configs = [
                 { count: 6, radius: 10, height: -4, label: "CHUYÊN VIÊN", color: 0x2196f3, scale: 0.9, speed: 0.008 },
-                { count: 4, radius: 18, height: 0, label: "TRƯỞNG, PHÓ PHÒNG", color: 0x607d8b, scale: 1.4, speed: -0.005 },
-                { count: 2, radius: 26, height: 4, label: "THỦ TRƯỞNG, TRƯỞNG NGÀNH", color: 0x450a0a, scale: 2.2, speed: 0.003 }
+                { count: 4, radius: 18, height: 0, label: "TRƯỞNG PHÒNG", color: 0x607d8b, scale: 1.4, speed: -0.005 },
+                { count: isMobile ? 1 : 2, radius: 26, height: 4, label: "THỦ TRƯỞNG", color: 0x450a0a, scale: 2.2, speed: 0.003 }
             ];
 
             configs.forEach(cfg => {
                 const layer = new THREE.Group(); layer.position.y = cfg.height;
                 layer.userData = { rotSpeed: cfg.speed };
                 const ring = new THREE.Mesh(
-                    new THREE.CylinderGeometry(cfg.radius+0.1, cfg.radius+0.1, 1.8, 64, 1, true),
-                    new THREE.MeshBasicMaterial({ map: createCurvedTextTexture(cfg.label), transparent: true, side: THREE.DoubleSide, opacity: 0.4 })
+                    new THREE.CylinderGeometry(cfg.radius+0.1, cfg.radius+0.1, 1.8, 32, 1, true),
+                    new THREE.MeshBasicMaterial({ map: createCurvedTextTexture(cfg.label), transparent: true, side: THREE.DoubleSide, opacity: 0.3 })
                 );
                 layer.add(ring);
                 for(let i=0; i<cfg.count; i++) {
@@ -379,32 +341,41 @@
             const sun = new THREE.DirectionalLight(0xffffff, 1.2); sun.position.set(30, 60, 40); scene.add(sun);
 
             content.forEach((text, i) => {
-                const ball = new THREE.Mesh(new THREE.SphereGeometry(1.6, 32, 32), new THREE.MeshPhongMaterial({ map: createBallTexture(i+1), shininess: 120 }));
-                ball.position.set((Math.random()-0.5)*45, (Math.random()-0.5)*45, (Math.random()-0.5)*45);
-                const s = 0.12 + Math.random()*0.1;
+                const ball = new THREE.Mesh(new THREE.SphereGeometry(1.6, 16, 16), new THREE.MeshPhongMaterial({ map: createBallTexture(i+1), shininess: 80 }));
+                ball.position.set((Math.random()-0.5)*40, (Math.random()-0.5)*40, (Math.random()-0.5)*40);
+                const s = 0.1 + Math.random()*0.1;
                 ball.userData = { desc: text, index: i+1, velocity: new THREE.Vector3((Math.random()-0.5)*s, (Math.random()-0.5)*s, (Math.random()-0.5)*s) };
                 globe.add(ball); points.push(ball);
             });
 
-            window.addEventListener('mousedown', () => isDragging = true);
-            window.addEventListener('mouseup', () => isDragging = false);
-            window.addEventListener('mousemove', (e) => {
+            // Gắn sự kiện (Mouse & Touch)
+            const handleDown = (x, y) => { isDragging = true; previousPosition = { x, y }; };
+            const handleMove = (x, y) => {
                 if(isDragging) {
-                    targetRotation.y += (e.clientX - previousMousePosition.x) * 0.005;
-                    targetRotation.x += (e.clientY - previousMousePosition.y) * 0.005;
+                    targetRotation.y += (x - previousPosition.x) * 0.005;
+                    targetRotation.x += (y - previousPosition.y) * 0.005;
                 }
-                previousMousePosition = { x: e.clientX, y: e.clientY };
-                mouse.x = (e.clientX / window.innerWidth) * 2 - 1;
-                mouse.y = -(e.clientY / window.innerHeight) * 2 + 1;
+                previousPosition = { x, y };
+                mouse.x = (x / window.innerWidth) * 2 - 1;
+                mouse.y = -(y / window.innerHeight) * 2 + 1;
                 checkHover();
-            });
-            window.addEventListener('wheel', (e) => {
-                targetZoom = Math.max(15, Math.min(180, targetZoom + e.deltaY * 0.05));
-            });
+            };
+
+            window.addEventListener('mousedown', e => handleDown(e.clientX, e.clientY));
+            window.addEventListener('mousemove', e => handleMove(e.clientX, e.clientY));
+            window.addEventListener('mouseup', () => isDragging = false);
+
+            window.addEventListener('touchstart', e => handleDown(e.touches[0].clientX, e.touches[0].clientY));
+            window.addEventListener('touchmove', e => handleMove(e.touches[0].clientX, e.touches[0].clientY));
+            window.addEventListener('touchend', () => isDragging = false);
+
+            window.addEventListener('wheel', e => { targetZoom = Math.max(20, Math.min(200, targetZoom + e.deltaY * 0.05)); });
+            
             window.addEventListener('resize', () => {
                 camera.aspect = window.innerWidth / window.innerHeight;
                 camera.updateProjectionMatrix();
                 renderer.setSize(window.innerWidth, window.innerHeight);
+                targetZoom = window.innerWidth < 768 ? 70 : 55;
             });
         }
 
@@ -416,41 +387,27 @@
                 const data = hits[0].object.userData;
                 document.getElementById('nodeIndex').innerText = `BIỂU HIỆN ${data.index < 10 ? '0'+data.index : data.index}`;
                 document.getElementById('nodeDesc').innerText = data.desc;
-                p.classList.add('active');
-            } else {
-                p.classList.remove('active');
+                p.style.display = 'block';
             }
         }
 
         function animate() {
             requestAnimationFrame(animate);
-            currentZoom += (targetZoom - currentZoom) * 0.1;
-            camera.position.z = currentZoom; camera.lookAt(0,0,0);
+            currentZoom += (targetZoom - currentZoom) * 0.05;
+            camera.position.z = currentZoom;
             currentRotation.x += (targetRotation.x - currentRotation.x) * 0.05;
             currentRotation.y += (targetRotation.y - currentRotation.y) * 0.05;
             
             globe.rotation.set(currentRotation.x, currentRotation.y, 0);
             officeGroup.rotation.set(currentRotation.x, currentRotation.y, 0);
-            
             officeGroup.children.forEach(l => l.rotation.y += l.userData.rotSpeed);
 
             for (let i = particles.length - 1; i >= 0; i--) {
-                const p = particles[i];
-                p.life -= p.decay;
-                
-                if (p.life <= 0) {
-                    scene.remove(p.system);
-                    p.system.geometry.dispose();
-                    p.system.material.dispose();
-                    particles.splice(i, 1);
-                    continue;
-                }
-
-                const positions = p.system.geometry.attributes.position.array;
+                const p = particles[i]; p.life -= p.decay;
+                if (p.life <= 0) { scene.remove(p.system); particles.splice(i, 1); continue; }
+                const pos = p.system.geometry.attributes.position.array;
                 for (let j = 0; j < p.velocities.length; j++) {
-                    positions[j * 3] += p.velocities[j].x;
-                    positions[j * 3 + 1] += p.velocities[j].y;
-                    positions[j * 3 + 2] += p.velocities[j].z;
+                    pos[j*3] += p.velocities[j].x; pos[j*3+1] += p.velocities[j].y; pos[j*3+2] += p.velocities[j].z;
                 }
                 p.system.geometry.attributes.position.needsUpdate = true;
                 p.system.material.opacity = p.life;
@@ -458,12 +415,8 @@
 
             points.forEach(ball => {
                 ball.position.add(ball.userData.velocity);
-                if(ball.position.length() > BOUNDARY) {
-                    ball.userData.velocity.reflect(ball.position.clone().normalize()).multiplyScalar(1.0);
-                }
-                
+                if(ball.position.length() > BOUNDARY) ball.userData.velocity.reflect(ball.position.clone().normalize());
                 ball.quaternion.copy(camera.quaternion);
-                
                 const bPos = ball.getWorldPosition(new THREE.Vector3());
                 personnelNodes.forEach(node => {
                     const nPos = node.getWorldPosition(new THREE.Vector3());
