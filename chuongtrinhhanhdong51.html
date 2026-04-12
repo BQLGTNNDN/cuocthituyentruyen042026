@@ -1,184 +1,65 @@
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Đảng ủy Ban Quản lý dự án đầu tư xây dựng các công trình giao thông và nông nghiệp Đà Nẵng</title>
+    <meta charset="UTF-8">
+    <title>
+        Đảng ủy Ban Quản lý dự án đầu tư xây dựng các công trình giao thông và nông nghiệp Đà Nẵng
+    </title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<style>
-body {
-    margin: 0;
-    font-family: Arial, sans-serif;
-    background: #111;
-    color: white;
-    overflow: hidden;
-}
+    <style>
+        body {
+            margin: 0;
+            background: #f4f4f4;
+            font-family: Arial, sans-serif;
+            text-align: center;
+        }
 
-/* HEADER */
-.header {
-    position: fixed;
-    top: 0;
-    width: 100%;
-    background: #c62828;
-    padding: 12px 10px;
-    text-align: center;
-    z-index: 10;
-}
+        .header {
+            padding: 20px 15px;
+            background: #c62828;
+            color: white;
+        }
 
-.header h1 {
-    font-size: 16px;
-    margin: 0;
-    line-height: 1.4;
-}
+        .header h1 {
+            margin: 0;
+            font-size: 20px;
+            line-height: 1.5;
+        }
 
-/* VIEWER */
-.viewer {
-    position: absolute;
-    top: 70px;
-    bottom: 0;
-    width: 100%;
-    overflow: hidden;
-    cursor: grab;
-}
+        .header p {
+            margin-top: 8px;
+            font-size: 14px;
+            opacity: 0.9;
+        }
 
-.viewer:active {
-    cursor: grabbing;
-}
+        .container {
+            padding: 20px;
+        }
 
-/* IMAGE */
-img {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%) scale(1);
-    transform-origin: center;
-    max-width: none;
-    user-select: none;
-    pointer-events: none;
-}
-
-/* CONTROLS */
-.controls {
-    position: fixed;
-    right: 15px;
-    bottom: 15px;
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    z-index: 20;
-}
-
-.btn {
-    background: #c62828;
-    border: none;
-    color: white;
-    padding: 12px;
-    font-size: 18px;
-    border-radius: 10px;
-    cursor: pointer;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.3);
-}
-
-.btn:hover {
-    background: #e53935;
-}
-</style>
+        img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+        }
+    </style>
 </head>
 
 <body>
 
-<div class="header">
-    <h1>
-        Đảng ủy Ban Quản lý dự án đầu tư xây dựng các công trình giao thông và nông nghiệp Đà Nẵng<br>
-        Bài dự thi theo Kế hoạch số 64-KH/ĐU ngày 12/3/2026
-    </h1>
-</div>
+    <div class="header">
+        <h1>
+            Đảng ủy Ban Quản lý dự án đầu tư xây dựng các công trình giao thông và nông nghiệp Đà Nẵng
+        </h1>
+        <p>
+            Bài dự thi theo Kế hoạch số 64-KH/ĐU ngày 12/3/2026 của Đảng ủy UBND thành phố Đà Nẵng
+        </p>
+    </div>
 
-<div class="viewer" id="viewer">
-    <img id="img" src="CHUONG-TRINH-HANH-DONG-51.avif" alt="Infographic">
-</div>
-
-<div class="controls">
-    <button class="btn" onclick="zoomIn()">＋</button>
-    <button class="btn" onclick="zoomOut()">－</button>
-    <button class="btn" onclick="reset()">⟳</button>
-    <button class="btn" onclick="fullscreen()">⛶</button>
-</div>
-
-<script>
-let scale = 1;
-let posX = 0;
-let posY = 0;
-let isDragging = false;
-let startX, startY;
-
-const img = document.getElementById("img");
-const viewer = document.getElementById("viewer");
-
-function updateTransform() {
-    img.style.transform =
-        `translate(-50%, -50%) translate(${posX}px, ${posY}px) scale(${scale})`;
-}
-
-// ZOOM BUTTON
-function zoomIn() {
-    scale += 0.2;
-    updateTransform();
-}
-
-function zoomOut() {
-    scale = Math.max(0.5, scale - 0.2);
-    updateTransform();
-}
-
-function reset() {
-    scale = 1;
-    posX = 0;
-    posY = 0;
-    updateTransform();
-}
-
-// FULLSCREEN
-function fullscreen() {
-    if (!document.fullscreenElement) {
-        document.documentElement.requestFullscreen();
-    } else {
-        document.exitFullscreen();
-    }
-}
-
-// SCROLL ZOOM
-viewer.addEventListener("wheel", (e) => {
-    e.preventDefault();
-    scale += e.deltaY * -0.001;
-    scale = Math.min(Math.max(0.5, scale), 5);
-    updateTransform();
-});
-
-// DRAG
-viewer.addEventListener("mousedown", (e) => {
-    isDragging = true;
-    startX = e.clientX - posX;
-    startY = e.clientY - posY;
-});
-
-window.addEventListener("mousemove", (e) => {
-    if (!isDragging) return;
-    posX = e.clientX - startX;
-    posY = e.clientY - startY;
-    updateTransform();
-});
-
-window.addEventListener("mouseup", () => {
-    isDragging = false;
-});
-
-// DOUBLE CLICK
-viewer.addEventListener("dblclick", () => {
-    scale = scale === 1 ? 2 : 1;
-    updateTransform();
-});
-</script>
+    <div class="container">
+        <img src="CHUONG-TRINH-HANH-DONG-51.avif" alt="Chương trình hành động 51">
+    </div>
 
 </body>
 </html>
